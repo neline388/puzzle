@@ -1,0 +1,22 @@
+.puzzle-piece:hover {
+  transform: scale(1.04);
+  z-index: 2;
+}
+
+.solved-popup {
+  animation: popup-zoom 0.6s ease;
+}
+
+@keyframes popup-zoom {
+  from { transform: scale(0.7); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.solved-border {
+  animation: solvedGlow 1.2s ease;
+}
+
+@keyframes solvedGlow {
+  0% { box-shadow: 0 0 0px #4caf50; }
+  100% { box-shadow: 0 0 18px #4caf50; }
+}
