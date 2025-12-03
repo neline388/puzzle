@@ -1,6 +1,6 @@
-import React, { useEffect, useMemo, useState } from "react";
+    import React, { useEffect, useMemo, useState } from "react";
 
-export default function Puzzle({ imageUrl, rows = 4, cols = 4 }) {
+    export default function Puzzle({ imageUrl, rows = 4, cols = 4 }) {
     const baseSize = 350;
     const size = Math.min(window.innerWidth * 0.8, baseSize);
     const numPieces = rows * cols;
@@ -11,9 +11,10 @@ export default function Puzzle({ imageUrl, rows = 4, cols = 4 }) {
     }, []);
 
     const [pieces, setPieces] = useState(shuffled);
-    const [draggedIndex, setDraggedIndex] = useState(null);
+    const [selectedIndex, setSelectedIndex] = useState(null);
     const [isSolved, setIsSolved] = useState(false);
     const [showHint, setShowHint] = useState(false);
+
     const correctCount = pieces.filter((p, i) => p === i).length;
 
     useEffect(() => {
@@ -24,33 +25,33 @@ export default function Puzzle({ imageUrl, rows = 4, cols = 4 }) {
         }
     }, [correctCount, numPieces]);
 
-    const handleDragStart = (e, index) => {
-        setDraggedIndex(index);
-        e.dataTransfer.effectAllowed = "move";
+    const handleSelect = (index) => {
+        // If selecting the first piece
+        if (selectedIndex === null) {
+        setSelectedIndex(index);
+        return;
+        }
 
-        const img = new Image();
-        img.src =
-        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMB/6XK2f8AAAAASUVORK5CYII=";
-        e.dataTransfer.setDragImage(img, 0, 0);
-    };
+        // If selecting the same tile → unselect
+        if (selectedIndex === index) {
+        setSelectedIndex(null);
+        return;
+        }
 
-    const handleDrop = (index) => {
-        if (draggedIndex === null || draggedIndex === index) return;
-
+        // Swap tiles
         const newPieces = [...pieces];
-        [newPieces[draggedIndex], newPieces[index]] = [
+        [newPieces[selectedIndex], newPieces[index]] = [
         newPieces[index],
-        newPieces[draggedIndex],
+        newPieces[selectedIndex],
         ];
 
         setPieces(newPieces);
-        setDraggedIndex(null);
+        setSelectedIndex(null);
     };
 
     return (
         <div className="d-flex flex-column align-items-center mt-4">
         <div className="card shadow-sm p-4" style={{ maxWidth: 420, width: "100%" }}>
-
             <button
             onClick={() => setShowHint(!showHint)}
             className="btn w-100 mb-3"
@@ -130,17 +131,19 @@ export default function Puzzle({ imageUrl, rows = 4, cols = 4 }) {
                 return (
                 <div
                     key={i}
-                    draggable
-                    onDragStart={(e) => handleDragStart(e, i)}
-                    onDragOver={(e) => e.preventDefault()}
-                    onDrop={() => handleDrop(i)}
+                    onClick={() => handleSelect(i)}
                     className="puzzle-piece"
                     style={{
                     width: size / cols,
                     height: size / rows,
                     overflow: "hidden",
                     position: "relative",
-                    cursor: "grab",
+                    cursor: "pointer",
+                    border:
+                        selectedIndex === i
+                        ? "3px solid #8b5cf6"
+                        : "1px solid #ddd",
+                    boxSizing: "border-box",
                     }}
                 >
                     <img
@@ -169,7 +172,8 @@ export default function Puzzle({ imageUrl, rows = 4, cols = 4 }) {
                 const arr = Array.from({ length: rows * cols }, (_, i) => i);
                 const newShuffle = arr.sort(() => Math.random() - 0.5);
                 setPieces(newShuffle);
-            }}        >
+            }}
+            >
             Mix again
             </button>
         </div>
